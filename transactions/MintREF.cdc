@@ -1,30 +1,35 @@
-import RichEntitledFuck from 0xf8d6e0586b0a20c7
+import NonFungibleToken from "../contracts/NonFungibleToken.cdc"
+import RichEntitledFuck from "../contracts/RichEntitledFuck.cdc"
 
-transaction(metadata: {String : String}) {
-    let receiverRef: &{RichEntitledFuck.NFTReceiver}
-    let minterRef: &RichEntitledFuck.NFTMinter
+// This script uses the NFTMinter resource to mint a new NFT
+// It must be run with the account that has the minter resource
+// stored in /storage/NFTMinter
 
-    // Take the account info of the user trying to execute the transaction and validate.
-    // Here we try to "borrow" the capabilities available on `NFTMinter` and `NFTReceiver`
-    // resources, and will fail if the user executing this transaction does not have access
-    // to these resources.
-    prepare(acct: AuthAccount) {
-        self.receiverRef = acct.getCapability<&{RichEntitledFuck.NFTReceiver}>(/public/NFTReceiver)
-            .borrow()
-            ?? panic("Could not borrow receiver reference")
-        self.minterRef = acct.borrow<&RichEntitledFuck.NFTMinter>(from: /storage/NFTMinter)
-            ?? panic("Could not borrow minter reference")
+transaction(
+    recipient: Address,
+    path: String,
+) {
+
+    // local variable for storing the minter reference
+    let minter: &RichEntitledFuck.NFTMinter
+
+    prepare(signer: AuthAccount) {
+        // borrow a reference to the NFTMinter resource in storage
+        self.minter = signer.borrow<&RichEntitledFuck.NFTMinter>(from: RichEntitledFuck.MinterStoragePath)
+            ?? panic("Could not borrow a reference to the NFT minter")
     }
 
     execute {
+        // Borrow the recipient's public NFT collection reference
+        let receiver = getAccount(recipient)
+            .getCapability(RichEntitledFuck.CollectionPublicPath)
+            .borrow<&{NonFungibleToken.CollectionPublic}>()
+            ?? panic("Could not get receiver reference to the NFT Collection")
 
-        // Mint the token by calling `mint()` on `@NFTMinter` resource, which returns
-        // an `@NFT` resource, and move it to a variable `newNFT`.
-        let newNFT <- self.minterRef.mint()
-
-        // Call `deposit(..)` on the `@NFTReceiver` resource to deposit the token.
-        // Note that this is where the metadata can be changed before transferring.
-        self.receiverRef.deposit(token: <-newNFT, metadata: metadata)
-        log("NFT Minted and deposited to Collection")
+        // Mint the NFT and deposit it to the recipient's collection
+        self.minter.mintNFT(
+            recipient: receiver,
+            path: path,
+        )
     }
 }
