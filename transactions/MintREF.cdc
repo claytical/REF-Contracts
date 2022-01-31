@@ -7,7 +7,7 @@ import RichEntitledFuck from "../contracts/RichEntitledFuck.cdc"
 
 transaction(
     recipient: Address,
-    path: String,
+    
 ) {
 
     // local variable for storing the minter reference
@@ -29,7 +29,6 @@ transaction(
         // Mint the NFT and deposit it to the recipient's collection
         self.minter.mintNFT(
             recipient: receiver,
-            path: path,
         )
     }
 }

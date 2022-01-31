@@ -2,8 +2,8 @@
 // It is not part of the official standard but it assumed to be
 // very similar to how many NFTs would implement the core functionality.
 
-import NonFungibleToken from "./NonFungibleToken.cdc"
-import MetadataViews from "./MetadataViews.cdc"
+import NonFungibleToken from 0x1d7e57aa55817448
+import MetadataViews from 0x1d7e57aa55817448
 
 pub contract RichEntitledFuck: NonFungibleToken {
 
@@ -23,19 +23,16 @@ pub contract RichEntitledFuck: NonFungibleToken {
         pub let name: String
         pub let description: String
         pub let thumbnail: String
-        pub let path: String
         pub let uri: String
 
         init(
             id: UInt64,
-            path: String,
         ) {
             self.id = id+1
-            self.path = path
             self.name = "Rich Entitled Fuck #".concat(self.id.toString())
             self.description = "A Collection of Rich Entitled Fucks"
-            self.thumbnail = "ipfs://Qmar9faXDPJwfJMwZn4D2Qiw7HgiSUZWVivS4hFPvKx3nY/".concat(path).concat(".png")
-            self.uri = "ipfs://QmdhGHUVRZ1qT2P2kNGhiQeuDKZbgw49RSYkWAbEJvU9jC/".concat(path).concat(".json")
+            self.thumbnail = "ipfs://Qmar9faXDPJwfJMwZn4D2Qiw7HgiSUZWVivS4hFPvKx3nY/ref_".concat(self.id.toString()).concat(".png")
+            self.uri = "ipfs://QmdhGHUVRZ1qT2P2kNGhiQeuDKZbgw49RSYkWAbEJvU9jC/ref_".concat(self.id.toString()).concat(".json")
 
         }
     
@@ -51,7 +48,6 @@ pub contract RichEntitledFuck: NonFungibleToken {
                     return MetadataViews.Display(
                         name: self.name,
                         description: self.description,
-                        //path: self.path,
                         uri: self.uri,
                         thumbnail: MetadataViews.HTTPFile(
                             url: self.thumbnail
@@ -154,13 +150,12 @@ pub contract RichEntitledFuck: NonFungibleToken {
         // and deposit it in the recipients collection using their collection reference
         pub fun mintNFT(
             recipient: &{NonFungibleToken.CollectionPublic},
-            path: String
         ) {
 
             // create a new NFT
             var newNFT <- create NFT(
                 id: RichEntitledFuck.totalSupply,
-                path: path,
+                
             )
 
             // deposit it in the recipient's account using their reference
