@@ -62,12 +62,10 @@ pub contract MetadataViews {
         init(
             name: String,
             description: String,
-            uri: String,
             thumbnail: AnyStruct{File}
         ) {
             self.name = name
             self.description = description
-            self.uri = uri
             self.thumbnail = thumbnail
         }
     }

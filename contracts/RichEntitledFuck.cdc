@@ -48,7 +48,6 @@ pub contract RichEntitledFuck: NonFungibleToken {
                     return MetadataViews.Display(
                         name: self.name,
                         description: self.description,
-                        uri: self.uri,
                         thumbnail: MetadataViews.HTTPFile(
                             url: self.thumbnail
                         )
